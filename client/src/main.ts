@@ -47,6 +47,12 @@ function notifyNewMessage() {
 	}
 }
 
+function triggerNudge() {
+	document.body.classList.remove("nudge");
+	void document.body.offsetWidth; // força reflow pra reiniciar a animação
+	document.body.classList.add("nudge");
+}
+
 document.addEventListener("visibilitychange", () => {
 	if (!document.hidden) {
 		stopBlinkingTitle();
@@ -173,6 +179,11 @@ socket.on(SocketEvents.MessageNew, (payload) => {
 	}
 });
 
+socket.on(SocketEvents.NudgeReceived, ({ from }) => {
+	renderSystemMessage(`${from} chamou sua atenção!`);
+	triggerNudge();
+});
+
 socket.on(SocketEvents.MessageHistory, (history) => {
 	history.forEach(renderMessage);
 });
@@ -183,6 +194,15 @@ socket.on(SocketEvents.OnlineUsers, (usernames) => {
 	usernames.forEach((username) => {
 		const item = document.createElement("li");
 		item.textContent = username;
+
+		if (username !== currentUsername) {
+			item.classList.add("nudgeable");
+			item.title = `Chamar atenção de ${username}`;
+			item.addEventListener("click", () => {
+				socket.emit(SocketEvents.Nudge, username);
+			});
+		}
+
 		onlineList.appendChild(item);
 	});
 });

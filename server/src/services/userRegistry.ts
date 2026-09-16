@@ -23,3 +23,8 @@ export function removeConnection(username: string, socketId: string) {
 export function getOnlineUsernames() {
 	return Array.from(userLists.keys());
 }
+
+export function getConnections(username: string): string[] {
+	const connections = userLists.get(username);
+	return connections ? Array.from(connections) : [];
+}

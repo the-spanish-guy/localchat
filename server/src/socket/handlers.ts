@@ -8,6 +8,7 @@ import type { Server, Socket } from "socket.io";
 import { getMessageHistory, saveMessage } from "../services/redisClient";
 import {
 	addConnection,
+	getConnections,
 	getOnlineUsernames,
 	removeConnection,
 } from "../services/userRegistry";
@@ -49,6 +50,14 @@ export function registerSocketHandlers(
 				username: socket.data.username,
 				isTyping: false,
 			});
+		});
+
+		socket.on(SocketEvents.Nudge, (targetUsername: string) => {
+			const from = socket.data.username;
+
+			for (const socketId of getConnections(targetUsername)) {
+				io.to(socketId).emit(SocketEvents.NudgeReceived, { from });
+			}
 		});
 
 		socket.on(SocketEvents.MessageSend, async (text: string) => {

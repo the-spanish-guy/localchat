@@ -6,6 +6,7 @@ export interface ClientToServerEvents {
   [SocketEvents.MessageSend]: (text: string) => void;
   [SocketEvents.TypingStart]: () => void;
   [SocketEvents.TypingStop]: () => void;
+  [SocketEvents.Nudge]: (targetUsername: string) => void;
 }
 
 export interface ServerToClientEvents {
@@ -15,4 +16,5 @@ export interface ServerToClientEvents {
   [SocketEvents.MessageHistory]: (messages: ChatMessage[]) => void;
   [SocketEvents.OnlineUsers]: (usernames: string[]) => void;
   [SocketEvents.UserTyping]: (payload: { username: string; isTyping: boolean }) => void;
+  [SocketEvents.NudgeReceived]: (payload: { from: string }) => void;
 }

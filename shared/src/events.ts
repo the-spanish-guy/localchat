@@ -9,4 +9,6 @@ export const SocketEvents = {
   TypingStart: "typing:start",
   TypingStop: "typing:stop",
   UserTyping: "user:typing",
+  Nudge: "nudge",
+  NudgeReceived: "nudge:received",
 } as const;
