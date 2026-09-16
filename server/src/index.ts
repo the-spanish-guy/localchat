@@ -22,6 +22,7 @@ async function main() {
 	io.on("connection", (socket) => {
 		socket.on(SocketEvents.UserJoined, (username) => {
 			console.log("teste", username);
+			io.emit(SocketEvents.UserJoined, username);
 		});
 	});
 
