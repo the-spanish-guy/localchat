@@ -37,3 +37,15 @@ socket.on("message:new", (payload: { username: string; text: string }) => {
 	messages.appendChild(item);
 	window.scrollTo(0, document.body.scrollHeight);
 });
+
+/**
+ * trabalhar melhor nisso posteriormente
+ */
+socket.on("user:left", ({ username }) => {
+	if (!username) return;
+
+	const item = document.createElement("li");
+	item.textContent = `Usuário: ${username} deixou a sala`;
+	messages.appendChild(item);
+	window.scrollTo(0, document.body.scrollHeight);
+});

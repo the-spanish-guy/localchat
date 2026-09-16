@@ -14,5 +14,12 @@ export function registerSocketHandlers(io: Server) {
 
 			io.emit(SocketEvents.MessageNew, { username, text });
 		});
+
+		socket.on("disconnect", (reason) => {
+			console.log(reason);
+			const username = socket.data.username;
+
+			io.emit(SocketEvents.UserLeft, { username });
+		});
 	});
 }
