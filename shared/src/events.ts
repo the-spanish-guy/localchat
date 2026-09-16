@@ -6,4 +6,7 @@ export const SocketEvents = {
   MessageNew: "message:new",
   MessageHistory: "message:history",
   OnlineUsers: "users:online",
+  TypingStart: "typing:start",
+  TypingStop: "typing:stop",
+  UserTyping: "user:typing",
 } as const;

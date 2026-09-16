@@ -14,8 +14,15 @@ const input = document.querySelector<HTMLInputElement>("#input")!;
 const messages = document.querySelector<HTMLUListElement>("#messages")!;
 const onlineList = document.querySelector<HTMLUListElement>("#online-list")!;
 const onlineCount = document.querySelector<HTMLSpanElement>("#online-count")!;
+const typingIndicator =
+	document.querySelector<HTMLParagraphElement>("#typing-indicator")!;
 
 let currentUsername = "";
+
+const TYPING_TIMEOUT_MS = 2000;
+let isTyping = false;
+let typingTimeout: ReturnType<typeof setTimeout> | undefined;
+const typingUsers = new Set<string>();
 
 function scrollToBottom() {
 	messages.scrollTop = messages.scrollHeight;
@@ -48,6 +55,32 @@ function renderSystemMessage(text: string) {
 	scrollToBottom();
 }
 
+function renderTypingIndicator() {
+	const names = Array.from(typingUsers);
+
+	if (names.length === 0) {
+		typingIndicator.hidden = true;
+		typingIndicator.textContent = "";
+		return;
+	}
+
+	typingIndicator.hidden = false;
+	if (names.length === 1) {
+		typingIndicator.textContent = `${names[0]} está digitando...`;
+	} else if (names.length === 2) {
+		typingIndicator.textContent = `${names[0]} e ${names[1]} estão digitando...`;
+	} else {
+		typingIndicator.textContent = "Várias pessoas estão digitando...";
+	}
+}
+
+function stopTyping() {
+	clearTimeout(typingTimeout);
+	if (!isTyping) return;
+	isTyping = false;
+	socket.emit(SocketEvents.TypingStop);
+}
+
 formUsername.addEventListener("submit", (e) => {
 	e.preventDefault();
 	const username = inputUsername.value.trim();
@@ -61,9 +94,19 @@ formUsername.addEventListener("submit", (e) => {
 	input.focus();
 });
 
+input.addEventListener("input", () => {
+	if (!isTyping) {
+		isTyping = true;
+		socket.emit(SocketEvents.TypingStart);
+	}
+	clearTimeout(typingTimeout);
+	typingTimeout = setTimeout(stopTyping, TYPING_TIMEOUT_MS);
+});
+
 form.addEventListener("submit", (e) => {
 	e.preventDefault();
 	if (input.value) {
+		stopTyping();
 		socket.emit(SocketEvents.MessageSend, input.value);
 		input.value = "";
 	}
@@ -73,12 +116,20 @@ socket.on(SocketEvents.UserJoined, (username) => {
 	renderSystemMessage(`${username} entrou na sala`);
 });
 
-/**
- * trabalhar melhor nisso posteriormente
- */
 socket.on(SocketEvents.UserLeft, (username) => {
 	if (!username) return;
 	renderSystemMessage(`${username} saiu da sala`);
+	typingUsers.delete(username);
+	renderTypingIndicator();
+});
+
+socket.on(SocketEvents.UserTyping, ({ username, isTyping: typing }) => {
+	if (typing) {
+		typingUsers.add(username);
+	} else {
+		typingUsers.delete(username);
+	}
+	renderTypingIndicator();
 });
 
 socket.on(SocketEvents.MessageNew, (payload) => {

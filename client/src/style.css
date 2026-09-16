@@ -202,6 +202,21 @@ body {
   font-style: italic;
 }
 
+#typing-indicator {
+  margin: 0;
+  padding: 0 1rem;
+  min-height: 1.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+#typing-indicator[hidden] {
+  display: none;
+}
+
 #form {
   display: flex;
   gap: 0.5rem;

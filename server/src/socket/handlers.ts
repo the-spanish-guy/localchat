@@ -37,6 +37,20 @@ export function registerSocketHandlers(
 			socket.emit(SocketEvents.MessageHistory, messagesHistory);
 		});
 
+		socket.on(SocketEvents.TypingStart, () => {
+			socket.broadcast.emit(SocketEvents.UserTyping, {
+				username: socket.data.username,
+				isTyping: true,
+			});
+		});
+
+		socket.on(SocketEvents.TypingStop, () => {
+			socket.broadcast.emit(SocketEvents.UserTyping, {
+				username: socket.data.username,
+				isTyping: false,
+			});
+		});
+
 		socket.on(SocketEvents.MessageSend, async (text: string) => {
 			const username = socket.data.username;
 
@@ -63,6 +77,11 @@ export function registerSocketHandlers(
 				io.emit(SocketEvents.UserLeft, username);
 				io.emit(SocketEvents.OnlineUsers, getOnlineUsernames());
 			}
+
+			socket.broadcast.emit(SocketEvents.UserTyping, {
+				username,
+				isTyping: false,
+			});
 		});
 	});
 }
