@@ -2,6 +2,7 @@ import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import { createServer } from "node:http";
+import { join } from "node:path";
 import { config } from "./config";
 
 async function main() {
@@ -10,6 +11,10 @@ async function main() {
 	app.get("/health", (_req, res) => res.json({ ok: true }));
 
 	const httpServer = createServer(app);
+
+	app.get("/", (req, res) => {
+		res.sendFile(join(__dirname, "index.html"));
+	});
 
 	httpServer.listen(config.port, "0.0.0.0", () => {
 		console.log(`[server] rodando em http://0.0.0.0:${config.port}`);
