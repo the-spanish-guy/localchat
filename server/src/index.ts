@@ -20,9 +20,16 @@ async function main() {
 	});
 
 	io.on("connection", (socket) => {
-		socket.on(SocketEvents.UserJoined, (username) => {
+		socket.on(SocketEvents.UserJoin, (username) => {
+			socket.data.username = username;
 			console.log("teste", username);
 			io.emit(SocketEvents.UserJoined, username);
+		});
+
+		socket.on(SocketEvents.MessageSend, (text) => {
+			const username = socket.data.username;
+
+			io.emit(SocketEvents.MessageNew, { username, text });
 		});
 	});
 
