@@ -7,15 +7,36 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <ul id="messages"></ul>
+    <div id="join-screen" class="screen">
+      <form id="usernameForm" class="join-card">
+        <h1>LocalChat</h1>
+        <p class="subtitle">Sem cadastro — só um nome pra entrar.</p>
+        <input
+          id="input-username"
+          autocomplete="off"
+          placeholder="Seu nome"
+          required
+        />
+        <button type="submit">Entrar</button>
+      </form>
+    </div>
 
-    <form id="usernameForm" action="">
-      <input id="input-username" autocomplete="off" /><button>Send username</button>
-    </form>
+    <div id="chat-screen" class="screen" hidden>
+      <aside id="sidebar">
+        <h2>LocalChat</h2>
+        <p class="online-count"><span id="online-count">0</span> online</p>
+        <ul id="online-list"></ul>
+      </aside>
 
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
+      <main id="chat-main">
+        <ul id="messages"></ul>
+
+        <form id="form">
+          <input id="input" autocomplete="off" placeholder="Digite uma mensagem" />
+          <button type="submit">Enviar</button>
+        </form>
+      </main>
+    </div>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

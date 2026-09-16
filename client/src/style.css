@@ -1,54 +1,238 @@
+:root {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --border: #e4e6eb;
+  --text: #1c1e21;
+  --text-muted: #65676b;
+  --primary: #2563eb;
+  --primary-text: #ffffff;
+  --bubble-other: #ffffff;
+  --system: #8a8d91;
+  --online: #22c55e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
 body {
   margin: 0;
-  padding-bottom: 3rem;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
 }
 
-#form {
-  background: rgba(0, 0, 0, 0.15);
-  padding: 0.25rem;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+.screen {
+  height: 100%;
+}
+
+/* [hidden] tem especificidade mais baixa que #id, então sem isso aqui os
+   `display: flex` de #join-screen/#chat-screen abaixo venceriam mesmo com
+   o atributo hidden presente, e as duas telas ficariam sempre visíveis */
+#join-screen[hidden],
+#chat-screen[hidden] {
+  display: none;
+}
+
+/* Tela de login */
+
+#join-screen {
   display: flex;
-  height: 3rem;
-  box-sizing: border-box;
-  backdrop-filter: blur(10px);
+  align-items: center;
+  justify-content: center;
 }
 
-#input {
+.join-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2.5rem 2rem;
+  width: min(90vw, 320px);
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.join-card h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.join-card .subtitle {
+  margin: 0 0 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.join-card input {
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.join-card input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.join-card button {
+  padding: 0.65rem;
   border: none;
-  padding: 0 1rem;
-  flex-grow: 1;
-  border-radius: 2rem;
-  margin: 0.25rem;
+  border-radius: 8px;
+  background: var(--primary);
+  color: var(--primary-text);
+  font-size: 1rem;
+  cursor: pointer;
 }
 
-#input:focus {
-  outline: none;
+.join-card button:hover {
+  opacity: 0.9;
 }
 
-#form > button {
-  background: #333;
-  border: none;
-  padding: 0 1rem;
-  margin: 0.25rem;
-  border-radius: 3px;
-  outline: none;
-  color: #fff;
+/* Tela de chat */
+
+#chat-screen {
+  display: flex;
+}
+
+#sidebar {
+  flex: 0 0 220px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 1.25rem 1rem;
+  overflow-y: auto;
+}
+
+#sidebar h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+}
+
+.online-count {
+  margin: 0 0 1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+#online-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+#online-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+#online-list li::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--online);
+  flex-shrink: 0;
+}
+
+#chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
 }
 
 #messages {
-  list-style-type: none;
+  list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 1rem;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-#messages > li {
-  padding: 0.5rem 1rem;
+#messages li.message {
+  max-width: 70%;
+  padding: 0.5rem 0.85rem;
+  border-radius: 14px;
+  background: var(--bubble-other);
+  border: 1px solid var(--border);
+  align-self: flex-start;
 }
 
-#messages > li:nth-child(odd) {
-  background: #efefef;
+#messages li.message .author {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 0.15rem;
+}
+
+#messages li.message.own {
+  align-self: flex-end;
+  background: var(--primary);
+  color: var(--primary-text);
+  border-color: transparent;
+}
+
+#messages li.message.own .author {
+  display: none;
+}
+
+#messages li.system {
+  align-self: center;
+  color: var(--system);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+#form {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+#input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+}
+
+#input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+#form button {
+  border: none;
+  background: var(--primary);
+  color: var(--primary-text);
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+#form button:hover {
+  opacity: 0.9;
 }
