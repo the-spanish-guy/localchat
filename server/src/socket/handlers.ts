@@ -18,6 +18,13 @@ export function registerSocketHandlers(io: Server) {
 			if (existUser) {
 				io.emit(SocketEvents.UserJoined, username);
 				io.emit(SocketEvents.OnlineUsers, getOnlineUsernames());
+			} else {
+				/**
+				 * usuário já estava online em outra aba/aparelho, então a lista não
+				 * muda, apenas para quem acabou de entrar. Assim emitimos só
+				 * pro socket novo, não pra todo mundo(io.emit)
+				 */
+				socket.emit(SocketEvents.OnlineUsers, getOnlineUsernames());
 			}
 		});
 
