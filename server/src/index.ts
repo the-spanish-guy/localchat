@@ -4,9 +4,12 @@ import cors from "cors";
 import express from "express";
 import { Server } from "socket.io";
 import { config } from "./config";
+import { connectRedis } from "./services/redisClient";
 import { registerSocketHandlers } from "./socket/handlers";
 
 async function main() {
+  await connectRedis();
+
   const app = express();
   app.use(cors());
   app.get("/health", (_req, res) => res.json({ ok: true }));

@@ -29,14 +29,25 @@ socket.on("user:joined", (message: string) => {
 	window.scrollTo(0, document.body.scrollHeight);
 });
 
-socket.on("message:new", (payload: { username: string; text: string }) => {
+function renderMessage(payload: { username: string; text: string }) {
 	const item = document.createElement("li");
 	item.textContent = `Usuário: ${payload.username}
   Mensagem: ${payload.text}
   `;
 	messages.appendChild(item);
 	window.scrollTo(0, document.body.scrollHeight);
+}
+
+socket.on("message:new", (payload: { username: string; text: string }) => {
+	renderMessage(payload);
 });
+
+socket.on(
+	"message:history",
+	(history: { username: string; text: string }[]) => {
+		history.forEach(renderMessage);
+	},
+);
 
 /**
  * trabalhar melhor nisso posteriormente

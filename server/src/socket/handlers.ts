@@ -1,4 +1,5 @@
 import type { Server, Socket } from "socket.io";
+import { getMessageHistory, saveMessage } from "../services/redisClient";
 import {
 	addConnection,
 	getOnlineUsernames,
@@ -8,7 +9,7 @@ import { SocketEvents } from "./events";
 
 export function registerSocketHandlers(io: Server) {
 	io.on("connection", (socket: Socket) => {
-		socket.on(SocketEvents.UserJoin, (username: string) => {
+		socket.on(SocketEvents.UserJoin, async (username: string) => {
 			console.log(socket.id);
 			socket.data.username = username;
 			console.log("teste", username);
@@ -26,11 +27,15 @@ export function registerSocketHandlers(io: Server) {
 				 */
 				socket.emit(SocketEvents.OnlineUsers, getOnlineUsernames());
 			}
+
+			const messagesHistory = await getMessageHistory();
+			socket.emit(SocketEvents.MessageHistory, messagesHistory);
 		});
 
 		socket.on(SocketEvents.MessageSend, (text: string) => {
 			const username = socket.data.username;
 
+			saveMessage({ createdAt: Date.now(), id: socket.id, text, username });
 			io.emit(SocketEvents.MessageNew, { username, text });
 		});
 
