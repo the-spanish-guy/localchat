@@ -19,6 +19,40 @@ const typingIndicator =
 
 let currentUsername = "";
 
+const DEFAULT_TITLE = document.title;
+const NEW_MESSAGE_TITLE = `Nova mensagem · ${DEFAULT_TITLE}`;
+const BLINK_INTERVAL_MS = 2000;
+
+let blinkInterval: ReturnType<typeof setInterval> | undefined;
+
+function startBlinkingTitle() {
+	if (blinkInterval) return;
+
+	document.title = NEW_MESSAGE_TITLE;
+	blinkInterval = setInterval(() => {
+		document.title =
+			document.title === NEW_MESSAGE_TITLE ? DEFAULT_TITLE : NEW_MESSAGE_TITLE;
+	}, BLINK_INTERVAL_MS);
+}
+
+function stopBlinkingTitle() {
+	clearInterval(blinkInterval);
+	blinkInterval = undefined;
+	document.title = DEFAULT_TITLE;
+}
+
+function notifyNewMessage() {
+	if (document.hidden) {
+		startBlinkingTitle();
+	}
+}
+
+document.addEventListener("visibilitychange", () => {
+	if (!document.hidden) {
+		stopBlinkingTitle();
+	}
+});
+
 const TYPING_TIMEOUT_MS = 2000;
 let isTyping = false;
 let typingTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -134,6 +168,9 @@ socket.on(SocketEvents.UserTyping, ({ username, isTyping: typing }) => {
 
 socket.on(SocketEvents.MessageNew, (payload) => {
 	renderMessage(payload);
+	if (payload.username !== currentUsername) {
+		notifyNewMessage();
+	}
 });
 
 socket.on(SocketEvents.MessageHistory, (history) => {
