@@ -22,6 +22,8 @@
     </div>
 
     <div id="chat-screen" class="screen" hidden>
+      <div id="wink-overlay" hidden></div>
+
       <aside id="sidebar">
         <h2>LocalChat</h2>
         <p class="online-count"><span id="online-count">0</span> online</p>
@@ -32,6 +34,15 @@
         <ul id="messages"></ul>
 
         <p id="typing-indicator" hidden></p>
+
+        <div id="winks-bar">
+          <button type="button" class="wink-btn" data-emoji="😂">😂</button>
+          <button type="button" class="wink-btn" data-emoji="🎉">🎉</button>
+          <button type="button" class="wink-btn" data-emoji="😍">😍</button>
+          <button type="button" class="wink-btn" data-emoji="👋">👋</button>
+          <button type="button" class="wink-btn" data-emoji="🕺">🕺</button>
+          <button type="button" class="wink-btn" data-emoji="😜">😜</button>
+        </div>
 
         <form id="form">
           <input id="input" autocomplete="off" placeholder="Digite uma mensagem" />

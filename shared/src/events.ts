@@ -11,4 +11,6 @@ export const SocketEvents = {
   UserTyping: "user:typing",
   Nudge: "nudge",
   NudgeReceived: "nudge:received",
+  WinkSend: "wink:send",
+  WinkReceived: "wink:received",
 } as const;

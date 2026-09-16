@@ -60,6 +60,13 @@ export function registerSocketHandlers(
 			}
 		});
 
+		socket.on(SocketEvents.WinkSend, (emoji: string) => {
+			io.emit(SocketEvents.WinkReceived, {
+				username: socket.data.username,
+				emoji,
+			});
+		});
+
 		socket.on(SocketEvents.MessageSend, async (text: string) => {
 			const username = socket.data.username;
 

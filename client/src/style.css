@@ -252,6 +252,85 @@ body {
   display: none;
 }
 
+#winks-bar {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0 1rem 0.5rem;
+}
+
+.wink-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 999px;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0.35rem 0.55rem;
+  cursor: pointer;
+}
+
+.wink-btn:hover {
+  background: var(--bg);
+}
+
+#wink-overlay {
+  position: fixed;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  text-align: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#wink-overlay[hidden] {
+  display: none;
+}
+
+#wink-overlay .wink-emoji {
+  display: block;
+  font-size: 5rem;
+  line-height: 1;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+}
+
+#wink-overlay .wink-caption {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 0.25rem 0.85rem;
+  border: 1px solid var(--border);
+}
+
+@keyframes wink-pop {
+  0% {
+    transform: translate(-50%, -50%) scale(0) rotate(-15deg);
+    opacity: 0;
+  }
+  35% {
+    transform: translate(-50%, -50%) scale(1.25) rotate(8deg);
+    opacity: 1;
+  }
+  55% {
+    transform: translate(-50%, -50%) scale(1) rotate(-4deg);
+  }
+  85% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.85);
+    opacity: 0;
+  }
+}
+
+#wink-overlay.playing {
+  animation: wink-pop 2s ease;
+}
+
 #form {
   display: flex;
   gap: 0.5rem;

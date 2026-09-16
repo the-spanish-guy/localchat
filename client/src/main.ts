@@ -16,6 +16,8 @@ const onlineList = document.querySelector<HTMLUListElement>("#online-list")!;
 const onlineCount = document.querySelector<HTMLSpanElement>("#online-count")!;
 const typingIndicator =
 	document.querySelector<HTMLParagraphElement>("#typing-indicator")!;
+const winkOverlay = document.querySelector<HTMLDivElement>("#wink-overlay")!;
+const winksBar = document.querySelector<HTMLDivElement>("#winks-bar")!;
 
 let currentUsername = "";
 
@@ -52,6 +54,29 @@ function triggerNudge() {
 	void document.body.offsetWidth; // força reflow pra reiniciar a animação
 	document.body.classList.add("nudge");
 }
+
+function playWink(username: string, emoji: string) {
+	winkOverlay.textContent = "";
+
+	const emojiEl = document.createElement("span");
+	emojiEl.className = "wink-emoji";
+	emojiEl.textContent = emoji;
+
+	const captionEl = document.createElement("span");
+	captionEl.className = "wink-caption";
+	captionEl.textContent = username;
+
+	winkOverlay.append(emojiEl, captionEl);
+	winkOverlay.hidden = false;
+
+	winkOverlay.classList.remove("playing");
+	void winkOverlay.offsetWidth; // força reflow pra reiniciar a animação
+	winkOverlay.classList.add("playing");
+}
+
+winkOverlay.addEventListener("animationend", () => {
+	winkOverlay.hidden = true;
+});
 
 document.addEventListener("visibilitychange", () => {
 	if (!document.hidden) {
@@ -152,6 +177,13 @@ form.addEventListener("submit", (e) => {
 	}
 });
 
+winksBar.querySelectorAll<HTMLButtonElement>(".wink-btn").forEach((btn) => {
+	btn.addEventListener("click", () => {
+		const emoji = btn.dataset.emoji;
+		if (emoji) socket.emit(SocketEvents.WinkSend, emoji);
+	});
+});
+
 socket.on(SocketEvents.UserJoined, (username) => {
 	renderSystemMessage(`${username} entrou na sala`);
 });
@@ -182,6 +214,10 @@ socket.on(SocketEvents.MessageNew, (payload) => {
 socket.on(SocketEvents.NudgeReceived, ({ from }) => {
 	renderSystemMessage(`${from} chamou sua atenção!`);
 	triggerNudge();
+});
+
+socket.on(SocketEvents.WinkReceived, ({ username, emoji }) => {
+	playWink(username, emoji);
 });
 
 socket.on(SocketEvents.MessageHistory, (history) => {
