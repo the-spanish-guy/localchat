@@ -1,44 +1,29 @@
-import cors from "cors";
 import "dotenv/config";
-import express from "express";
 import { createServer } from "node:http";
-import { join } from "node:path";
+import cors from "cors";
+import express from "express";
 import { Server } from "socket.io";
 import { config } from "./config";
-import { SocketEvents } from "./socket/events";
+import { registerSocketHandlers } from "./socket/handlers";
 
 async function main() {
-	const app = express();
-	app.use(cors());
-	app.get("/health", (_req, res) => res.json({ ok: true }));
+  const app = express();
+  app.use(cors());
+  app.get("/health", (_req, res) => res.json({ ok: true }));
 
-	const httpServer = createServer(app);
-	const io = new Server(httpServer);
+  const httpServer = createServer(app);
+  const io = new Server(httpServer, {
+    cors: { origin: "*" },
+  });
 
-	app.get("/", (req, res) => {
-		res.sendFile(join(__dirname, "index.html"));
-	});
+  registerSocketHandlers(io);
 
-	io.on("connection", (socket) => {
-		socket.on(SocketEvents.UserJoin, (username) => {
-			socket.data.username = username;
-			console.log("teste", username);
-			io.emit(SocketEvents.UserJoined, username);
-		});
-
-		socket.on(SocketEvents.MessageSend, (text) => {
-			const username = socket.data.username;
-
-			io.emit(SocketEvents.MessageNew, { username, text });
-		});
-	});
-
-	httpServer.listen(config.port, "0.0.0.0", () => {
-		console.log(`[server] rodando em http://0.0.0.0:${config.port}`);
-	});
+  httpServer.listen(config.port, "0.0.0.0", () => {
+    console.log(`[server] rodando em http://0.0.0.0:${config.port}`);
+  });
 }
 
 main().catch((err) => {
-	console.error("[server] falha ao iniciar:", err);
-	process.exit(1);
+  console.error("[server] falha ao iniciar:", err);
+  process.exit(1);
 });
