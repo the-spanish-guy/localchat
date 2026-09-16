@@ -4,4 +4,6 @@ export const SocketEvents = {
 	UserLeft: "user:left",
 	MessageSend: "message:send",
 	MessageNew: "message:new",
+	MessageHistory: "message:history",
+	OnlineUsers: "users:online",
 } as const;
