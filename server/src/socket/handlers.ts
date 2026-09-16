@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { Server, Socket } from "socket.io";
 import { getMessageHistory, saveMessage } from "../services/redisClient";
 import {
@@ -10,9 +11,7 @@ import { SocketEvents } from "./events";
 export function registerSocketHandlers(io: Server) {
 	io.on("connection", (socket: Socket) => {
 		socket.on(SocketEvents.UserJoin, async (username: string) => {
-			console.log(socket.id);
 			socket.data.username = username;
-			console.log("teste", username);
 
 			const existUser = addConnection(username, socket.id);
 
@@ -32,21 +31,30 @@ export function registerSocketHandlers(io: Server) {
 			socket.emit(SocketEvents.MessageHistory, messagesHistory);
 		});
 
-		socket.on(SocketEvents.MessageSend, (text: string) => {
+		socket.on(SocketEvents.MessageSend, async (text: string) => {
 			const username = socket.data.username;
 
-			saveMessage({ createdAt: Date.now(), id: socket.id, text, username });
+			try {
+				await saveMessage({
+					createdAt: Date.now(),
+					id: randomUUID(),
+					text,
+					username,
+				});
+			} catch (err) {
+				console.error("[redis] falha ao salvar mensagem:", err);
+			}
+
 			io.emit(SocketEvents.MessageNew, { username, text });
 		});
 
-		socket.on("disconnect", (reason) => {
-			console.log(reason);
+		socket.on("disconnect", () => {
 			const username = socket.data.username;
 			const socketId = socket.id;
 			const shouldBeEmitEvent = removeConnection(username, socketId);
 
 			if (shouldBeEmitEvent) {
-				io.emit(SocketEvents.UserLeft, { username });
+				io.emit(SocketEvents.UserLeft, username);
 				io.emit(SocketEvents.OnlineUsers, getOnlineUsernames());
 			}
 		});

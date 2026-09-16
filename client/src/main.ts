@@ -52,7 +52,7 @@ socket.on(
 /**
  * trabalhar melhor nisso posteriormente
  */
-socket.on("user:left", ({ username }) => {
+socket.on("user:left", (username: string) => {
 	if (!username) return;
 
 	const item = document.createElement("li");
