@@ -1,4 +1,9 @@
 import { randomUUID } from "node:crypto";
+import type {
+	ClientToServerEvents,
+	ServerToClientEvents,
+} from "shared";
+import { SocketEvents } from "shared";
 import type { Server, Socket } from "socket.io";
 import { getMessageHistory, saveMessage } from "../services/redisClient";
 import {
@@ -6,10 +11,11 @@ import {
 	getOnlineUsernames,
 	removeConnection,
 } from "../services/userRegistry";
-import { SocketEvents } from "./events";
 
-export function registerSocketHandlers(io: Server) {
-	io.on("connection", (socket: Socket) => {
+export function registerSocketHandlers(
+	io: Server<ClientToServerEvents, ServerToClientEvents>,
+) {
+	io.on("connection", (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
 		socket.on(SocketEvents.UserJoin, async (username: string) => {
 			socket.data.username = username;
 

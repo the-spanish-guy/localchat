@@ -2,6 +2,7 @@ import "dotenv/config";
 import { createServer } from "node:http";
 import cors from "cors";
 import express from "express";
+import type { ClientToServerEvents, ServerToClientEvents } from "shared";
 import { Server } from "socket.io";
 import { config } from "./config";
 import { connectRedis } from "./services/redisClient";
@@ -15,9 +16,12 @@ async function main() {
   app.get("/health", (_req, res) => res.json({ ok: true }));
 
   const httpServer = createServer(app);
-  const io = new Server(httpServer, {
-    cors: { origin: "*" },
-  });
+  const io = new Server<ClientToServerEvents, ServerToClientEvents>(
+    httpServer,
+    {
+      cors: { origin: "*" },
+    },
+  );
 
   registerSocketHandlers(io);
 

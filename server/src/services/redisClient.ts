@@ -1,6 +1,6 @@
 import { createClient } from "redis";
+import type { ChatMessage } from "shared";
 import { config } from "../config";
-import type { ChatMessage } from "../types";
 
 const MESSAGES_KEY = "chat:message";
 
