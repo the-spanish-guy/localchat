@@ -49,6 +49,16 @@ function notifyNewMessage() {
 	}
 }
 
+function colorForUsername(username: string): string {
+	let hash = 0;
+	for (let i = 0; i < username.length; i++) {
+		hash = (hash << 5) - hash + username.charCodeAt(i);
+		hash |= 0;
+	}
+	const hue = Math.abs(hash) % 360;
+	return `hsl(${hue}, 65%, 45%)`;
+}
+
 function triggerNudge() {
 	document.body.classList.remove("nudge");
 	void document.body.offsetWidth; // força reflow pra reiniciar a animação
@@ -103,6 +113,7 @@ function renderMessage(payload: { username: string; text: string }) {
 	const author = document.createElement("span");
 	author.className = "author";
 	author.textContent = payload.username;
+	author.style.color = colorForUsername(payload.username);
 
 	const text = document.createElement("span");
 	text.textContent = payload.text;
@@ -242,6 +253,7 @@ socket.on(SocketEvents.OnlineUsers, (usernames) => {
 	usernames.forEach((username) => {
 		const item = document.createElement("li");
 		item.textContent = username;
+		item.style.color = colorForUsername(username);
 
 		if (username !== currentUsername) {
 			item.classList.add("nudgeable");
