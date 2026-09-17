@@ -7,9 +7,14 @@
   --text-muted: #65676b;
   --primary: #2563eb;
   --primary-text: #ffffff;
-  --bubble-other: #ffffff;
+  --bubble-other: rgba(255, 255, 255, 0.65);
   --system: #8a8d91;
   --online: #22c55e;
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --blob-1: #93c5fd;
+  --blob-2: #f9a8d4;
+  --blob-3: #99f6e4;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,9 +26,14 @@
     --text-muted: #9aa0a6;
     --primary: #4f8cff;
     --primary-text: #ffffff;
-    --bubble-other: #2c2f36;
+    --bubble-other: rgba(44, 47, 54, 0.55);
     --system: #9aa0a6;
     --online: #34d399;
+    --glass-bg: rgba(24, 26, 30, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --blob-1: #4f46e5;
+    --blob-2: #db2777;
+    --blob-3: #0d9488;
   }
 }
 
@@ -36,9 +46,14 @@
   --text-muted: #9aa0a6;
   --primary: #4f8cff;
   --primary-text: #ffffff;
-  --bubble-other: #2c2f36;
+  --bubble-other: rgba(44, 47, 54, 0.55);
   --system: #9aa0a6;
   --online: #34d399;
+  --glass-bg: rgba(24, 26, 30, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --blob-1: #4f46e5;
+  --blob-2: #db2777;
+  --blob-3: #0d9488;
 }
 
 :root[data-theme="light"] {
@@ -106,10 +121,39 @@ body {
     Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
+  position: relative;
+  overflow: hidden;
+}
+
+/* camada de blobs coloridos desfocados atrás dos painéis de vidro —
+   fica isolada num pseudo-elemento pra o blur não afetar o resto da
+   página, só o fundo */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -10%;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 15% 20%, var(--blob-1) 0%, transparent 35%),
+    radial-gradient(circle at 85% 15%, var(--blob-2) 0%, transparent 35%),
+    radial-gradient(circle at 60% 85%, var(--blob-3) 0%, transparent 40%);
+  filter: blur(80px);
+  opacity: 0.55;
 }
 
 .screen {
   height: 100%;
+}
+
+/* painéis "vidro fosco" — chat e card de login */
+#chat-screen,
+.join-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
 }
 
 /* [hidden] tem especificidade mais baixa que #id, então sem isso aqui os
@@ -129,13 +173,9 @@ body {
 }
 
 .join-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
   padding: 2.5rem 2rem;
   width: min(90vw, 320px);
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -181,13 +221,20 @@ body {
 /* Tela de chat */
 
 #chat-screen {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 960px);
+  height: min(85vh, 640px);
   display: flex;
+  overflow: hidden; /* clip filhos nas bordas arredondadas */
 }
 
 #sidebar {
   flex: 0 0 220px;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
+  background: transparent;
+  border-right: 1px solid var(--glass-border);
   padding: 1.25rem 1rem;
   overflow-y: auto;
 }
@@ -263,7 +310,7 @@ body {
   padding: 0.5rem 0.85rem;
   border-radius: 14px;
   background: var(--bubble-other);
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-border);
   align-self: flex-start;
 }
 
@@ -391,8 +438,8 @@ body {
   display: flex;
   gap: 0.5rem;
   padding: 1rem;
-  border-top: 1px solid var(--border);
-  background: var(--surface);
+  border-top: 1px solid var(--glass-border);
+  background: transparent;
 }
 
 #input {
