@@ -15,12 +15,23 @@ export async function connectRedis() {
 }
 
 export async function saveMessage(message: ChatMessage) {
-	await redisClient.RPUSH(MESSAGES_KEY, JSON.stringify(message));
-	await redisClient.LTRIM(MESSAGES_KEY, -config.messageHistoryLimit, -1);
+	await redisClient.ZADD(MESSAGES_KEY, {
+		score: message.createdAt,
+		value: JSON.stringify(message),
+	});
+	await pruneExpiredMessages();
+	await redisClient.ZREMRANGEBYRANK(MESSAGES_KEY, 0, -config.messageHistoryLimit - 1);
 	await redisClient.expire(MESSAGES_KEY, config.messageTtlSeconds);
 }
 export async function getMessageHistory(): Promise<ChatMessage[]> {
-	const messages = await redisClient.LRANGE(MESSAGES_KEY, 0, -1);
+	await pruneExpiredMessages();
+	const messages = await redisClient.ZRANGE(MESSAGES_KEY, 0, -1);
 
 	return messages.map((message) => JSON.parse(message) as ChatMessage);
+}
+
+function pruneExpiredMessages() {
+	const cutoff = Date.now() - config.messageTtlSeconds * 1000;
+
+	return redisClient.ZREMRANGEBYSCORE(MESSAGES_KEY, "-inf", cutoff);
 }
