@@ -8,6 +8,14 @@ import { config } from "./config";
 import { connectRedis } from "./services/redisClient";
 import { registerSocketHandlers } from "./socket/handlers";
 
+process.on("unhandledRejection", (err) => {
+  console.error("[server] unhandled rejection:", err);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("[server] uncaught exception:", err);
+});
+
 async function main() {
   await connectRedis();
 

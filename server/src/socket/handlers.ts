@@ -34,8 +34,13 @@ export function registerSocketHandlers(
 				socket.emit(SocketEvents.OnlineUsers, getOnlineUsernames());
 			}
 
-			const messagesHistory = await getMessageHistory();
-			socket.emit(SocketEvents.MessageHistory, messagesHistory);
+			try {
+				const messagesHistory = await getMessageHistory();
+				socket.emit(SocketEvents.MessageHistory, messagesHistory);
+			} catch (err) {
+				console.error("[redis] falha ao buscar histórico de mensagens:", err);
+				socket.emit(SocketEvents.MessageHistory, []);
+			}
 		});
 
 		socket.on(SocketEvents.TypingStart, () => {

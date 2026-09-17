@@ -146,16 +146,17 @@ function scrollToBottom() {
 }
 
 function renderMessage(payload: { username: string; text: string }) {
+	const username = payload.username || "desconhecido";
 	const item = document.createElement("li");
 	item.className = "message";
-	if (payload.username === currentUsername) {
+	if (username === currentUsername) {
 		item.classList.add("own");
 	}
 
 	const author = document.createElement("span");
 	author.className = "author";
-	author.textContent = payload.username;
-	author.style.color = colorForUsername(payload.username);
+	author.textContent = username;
+	author.style.color = colorForUsername(username);
 
 	const text = document.createElement("span");
 	const imageUrls: string[] = [];
@@ -249,6 +250,12 @@ function enterChat(username: string) {
 	input.focus();
 }
 
+socket.io.on("reconnect", () => {
+	if (currentUsername) {
+		socket.emit(SocketEvents.UserJoin, currentUsername);
+	}
+});
+
 formUsername.addEventListener("submit", (e) => {
 	e.preventDefault();
 	const username = inputUsername.value.trim();
@@ -324,7 +331,13 @@ socket.on(SocketEvents.WinkReceived, ({ username, emoji }) => {
 });
 
 socket.on(SocketEvents.MessageHistory, (history) => {
-	history.forEach(renderMessage);
+	for (const payload of history) {
+		try {
+			renderMessage(payload);
+		} catch (err) {
+			console.error("[chat] falha ao renderizar mensagem do histórico:", err, payload);
+		}
+	}
 });
 
 socket.on(SocketEvents.OnlineUsers, (usernames) => {
