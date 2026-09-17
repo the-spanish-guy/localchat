@@ -27,28 +27,48 @@ let currentUsername = "";
 
 const THEME_STORAGE_KEY = "localchat:theme";
 
-function getEffectiveTheme(): "light" | "dark" {
+const THEMES = ["light", "dark", "tokyo-night", "dracula", "nord", "catppuccin"] as const;
+type Theme = (typeof THEMES)[number];
+
+const THEME_ICONS: Record<Theme, string> = {
+	light: "🌙",
+	dark: "🌆",
+	"tokyo-night": "🧛",
+	dracula: "❄️",
+	nord: "☕",
+	catppuccin: "☀️",
+};
+
+function isTheme(value: string | undefined): value is Theme {
+	return !!value && (THEMES as readonly string[]).includes(value);
+}
+
+function getEffectiveTheme(): Theme {
 	const explicit = document.documentElement.dataset.theme;
-	if (explicit === "light" || explicit === "dark") return explicit;
+	if (isTheme(explicit)) return explicit;
 	return window.matchMedia("(prefers-color-scheme: dark)").matches
 		? "dark"
 		: "light";
 }
 
-function applyTheme(theme: "light" | "dark" | null) {
+function applyTheme(theme: Theme | null) {
 	if (theme) {
 		document.documentElement.dataset.theme = theme;
 	} else {
 		delete document.documentElement.dataset.theme;
 	}
-	themeToggle.textContent = getEffectiveTheme() === "dark" ? "☀️" : "🌙";
+	// o ícone mostra o PRÓXIMO tema do ciclo, não o atual — é o que o clique vai aplicar
+	const currentIndex = THEMES.indexOf(getEffectiveTheme());
+	const next = THEMES[(currentIndex + 1) % THEMES.length];
+	themeToggle.textContent = THEME_ICONS[next];
 }
 
 const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-applyTheme(savedTheme === "dark" || savedTheme === "light" ? savedTheme : null);
+applyTheme(isTheme(savedTheme ?? undefined) ? (savedTheme as Theme) : null);
 
 themeToggle.addEventListener("click", () => {
-	const next = getEffectiveTheme() === "dark" ? "light" : "dark";
+	const currentIndex = THEMES.indexOf(getEffectiveTheme());
+	const next = THEMES[(currentIndex + 1) % THEMES.length];
 	localStorage.setItem(THEME_STORAGE_KEY, next);
 	applyTheme(next);
 });
