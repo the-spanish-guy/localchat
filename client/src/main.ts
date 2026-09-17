@@ -1,4 +1,5 @@
 import { SocketEvents } from "shared";
+import { colorForUsername } from "./colorForUsername";
 import { socket } from "./socket";
 
 const joinScreen = document.querySelector<HTMLDivElement>("#join-screen")!;
@@ -76,16 +77,6 @@ function notifyNewMessage() {
 	if (document.hidden) {
 		startBlinkingTitle();
 	}
-}
-
-function colorForUsername(username: string): string {
-	let hash = 0;
-	for (let i = 0; i < username.length; i++) {
-		hash = (hash << 5) - hash + username.charCodeAt(i);
-		hash |= 0;
-	}
-	const hue = Math.abs(hash) % 360;
-	return `hsl(${hue}, 65%, 45%)`;
 }
 
 function triggerNudge() {
