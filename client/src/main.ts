@@ -1,5 +1,6 @@
 import { SocketEvents } from "shared";
 import { colorForUsername } from "./colorForUsername";
+import { isImageUrl } from "./isImageUrl";
 import { linkify } from "./linkify";
 import { socket } from "./socket";
 
@@ -137,8 +138,13 @@ function renderMessage(payload: { username: string; text: string }) {
 	author.style.color = colorForUsername(payload.username);
 
 	const text = document.createElement("span");
+	const imageUrls: string[] = [];
 	for (const part of linkify(payload.text)) {
 		if (part.type === "link") {
+			if (isImageUrl(part.value)) {
+				imageUrls.push(part.value);
+				continue;
+			}
 			const link = document.createElement("a");
 			link.href = part.value;
 			link.textContent = part.value;
@@ -151,6 +157,28 @@ function renderMessage(payload: { username: string; text: string }) {
 	}
 
 	item.append(author, text);
+
+	for (const url of imageUrls) {
+		const link = document.createElement("a");
+		link.className = "image-link";
+		link.href = url;
+		link.target = "_blank";
+		link.rel = "noopener noreferrer";
+
+		const img = document.createElement("img");
+		img.className = "message-image";
+		img.src = url;
+		img.alt = "imagem compartilhada";
+		img.loading = "lazy";
+		img.onerror = () => {
+			img.remove();
+			link.textContent = url;
+		};
+
+		link.appendChild(img);
+		item.appendChild(link);
+	}
+
 	messages.appendChild(item);
 	scrollToBottom();
 }
