@@ -146,18 +146,30 @@ function stopTyping() {
 	socket.emit(SocketEvents.TypingStop);
 }
 
-formUsername.addEventListener("submit", (e) => {
-	e.preventDefault();
-	const username = inputUsername.value.trim();
-	if (!username) return;
+const USERNAME_STORAGE_KEY = "localchat:username";
 
+function enterChat(username: string) {
 	currentUsername = username;
+	localStorage.setItem(USERNAME_STORAGE_KEY, username);
 	socket.emit(SocketEvents.UserJoin, username);
 
 	joinScreen.hidden = true;
 	chatScreen.hidden = false;
 	input.focus();
+}
+
+formUsername.addEventListener("submit", (e) => {
+	e.preventDefault();
+	const username = inputUsername.value.trim();
+	if (!username) return;
+
+	enterChat(username);
 });
+
+const savedUsername = localStorage.getItem(USERNAME_STORAGE_KEY);
+if (savedUsername) {
+	enterChat(savedUsername);
+}
 
 input.addEventListener("input", () => {
 	if (!isTyping) {
