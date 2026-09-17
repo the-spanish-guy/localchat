@@ -7,11 +7,13 @@
     "client"
   ],
   "scripts": {
-    "dev": "concurrently -n server,client -c blue,green \"npm run dev -w server\" \"npm run dev -w client\"",
+    "dev": "concurrently -n server,client,mdns -c blue,green,magenta \"npm run dev -w server\" \"npm run dev -w client\" \"npm run mdns -w server\"",
     "build": "npm run build -w server && npm run build -w client",
     "redis:up": "docker compose up -d redis",
     "redis:down": "docker compose down",
-    "test": "npm run test -w server && npm run test -w client"
+    "test": "npm run test -w server && npm run test -w client",
+    "docker:up": "docker compose up -d --build && npm run mdns -w server",
+    "docker:down": "docker compose down"
   },
   "devDependencies": {
     "concurrently": "^9.0.0"
