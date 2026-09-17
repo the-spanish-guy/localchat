@@ -1,8 +1,16 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { Server } from "socket.io";
-import { io as ioc, type Socket as ClientSocket } from "socket.io-client";
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { type Socket as ClientSocket, io as ioc } from "socket.io-client";
+import {
+	afterAll,
+	afterEach,
+	beforeAll,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vitest";
 import { registerSocketHandlers } from "./handlers";
 
 vi.mock("../services/redisClient", () => ({
@@ -55,9 +63,9 @@ describe("socket handlers", () => {
 		await waitFor(a, "connect");
 
 		const joinedPromise = waitFor<string>(a, "user:joined");
-		a.emit("user:join", "Ana");
+		a.emit("user:join", "Pancha");
 
-		expect(await joinedPromise).toBe("Ana");
+		expect(await joinedPromise).toBe("Pancha");
 	});
 
 	it("não repete user:joined quando o mesmo username entra numa segunda aba", async () => {

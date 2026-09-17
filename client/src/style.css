@@ -322,6 +322,12 @@ body::before {
   margin-bottom: 0.15rem;
 }
 
+#messages li.message a {
+  color: inherit;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
 #messages li.message.own {
   align-self: flex-end;
   background: var(--primary);

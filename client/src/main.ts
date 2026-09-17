@@ -1,5 +1,6 @@
 import { SocketEvents } from "shared";
 import { colorForUsername } from "./colorForUsername";
+import { linkify } from "./linkify";
 import { socket } from "./socket";
 
 const joinScreen = document.querySelector<HTMLDivElement>("#join-screen")!;
@@ -136,7 +137,18 @@ function renderMessage(payload: { username: string; text: string }) {
 	author.style.color = colorForUsername(payload.username);
 
 	const text = document.createElement("span");
-	text.textContent = payload.text;
+	for (const part of linkify(payload.text)) {
+		if (part.type === "link") {
+			const link = document.createElement("a");
+			link.href = part.value;
+			link.textContent = part.value;
+			link.target = "_blank";
+			link.rel = "noopener noreferrer";
+			text.appendChild(link);
+		} else {
+			text.appendChild(document.createTextNode(part.value));
+		}
+	}
 
 	item.append(author, text);
 	messages.appendChild(item);
