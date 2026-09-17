@@ -79,6 +79,10 @@ const BLINK_INTERVAL_MS = 2000;
 
 let blinkInterval: ReturnType<typeof setInterval> | undefined;
 
+const notificationSound = new Audio("/notificacao.mp3");
+notificationSound.preload = "auto";
+notificationSound.load();
+
 function startBlinkingTitle() {
 	if (blinkInterval) return;
 
@@ -96,6 +100,11 @@ function stopBlinkingTitle() {
 }
 
 function notifyNewMessage() {
+	const sound = notificationSound.cloneNode(true) as HTMLAudioElement;
+	sound.play().catch((err) => {
+		console.warn("[chat] não consegui tocar o som de notificação:", err);
+	});
+
 	if (document.hidden) {
 		startBlinkingTitle();
 	}
