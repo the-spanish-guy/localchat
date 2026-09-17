@@ -100,12 +100,12 @@ function stopBlinkingTitle() {
 }
 
 function notifyNewMessage() {
-	const sound = notificationSound.cloneNode(true) as HTMLAudioElement;
-	sound.play().catch((err) => {
-		console.warn("[chat] não consegui tocar o som de notificação:", err);
-	});
-
 	if (document.hidden) {
+		const sound = notificationSound.cloneNode(true) as HTMLAudioElement;
+		sound.play().catch((err) => {
+			console.warn("[chat] não consegui tocar o som de notificação:", err);
+		});
+
 		startBlinkingTitle();
 	}
 }
