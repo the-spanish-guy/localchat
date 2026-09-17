@@ -1,7 +1,5 @@
 import "dotenv/config";
-import { existsSync } from "node:fs";
 import { createServer } from "node:http";
-import { join } from "node:path";
 import cors from "cors";
 import express from "express";
 import type { ClientToServerEvents, ServerToClientEvents } from "shared";
@@ -17,19 +15,13 @@ async function main() {
   app.use(cors());
   app.get("/health", (_req, res) => res.json({ ok: true }));
 
-  // em produção (ex: Docker), o client já vem "buildado" (vite build) e
-  // fica ao lado do server no mesmo diretório de origem — se existir,
-  // serve como estático. Em dev normal, essa pasta não existe (o Vite
-  // dev server cuida disso separadamente) e essa linha não faz nada.
-  const clientDistPath = join(__dirname, "../../client/dist");
-  if (existsSync(clientDistPath)) {
-    app.use(express.static(clientDistPath));
-  }
-
   const httpServer = createServer(app);
-  // sem cors: o client agora conecta sempre na mesma origem (via proxy
-  // do Vite em dev, ou porque o server serve o build do client em prod)
-  const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer);
+  const io = new Server<ClientToServerEvents, ServerToClientEvents>(
+    httpServer,
+    {
+      cors: { origin: "*" },
+    },
+  );
 
   registerSocketHandlers(io);
 
