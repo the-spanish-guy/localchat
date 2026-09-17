@@ -18,8 +18,37 @@ const typingIndicator =
 	document.querySelector<HTMLParagraphElement>("#typing-indicator")!;
 const winkOverlay = document.querySelector<HTMLDivElement>("#wink-overlay")!;
 const winksBar = document.querySelector<HTMLDivElement>("#winks-bar")!;
+const themeToggle = document.querySelector<HTMLButtonElement>("#theme-toggle")!;
 
 let currentUsername = "";
+
+const THEME_STORAGE_KEY = "localchat:theme";
+
+function getEffectiveTheme(): "light" | "dark" {
+	const explicit = document.documentElement.dataset.theme;
+	if (explicit === "light" || explicit === "dark") return explicit;
+	return window.matchMedia("(prefers-color-scheme: dark)").matches
+		? "dark"
+		: "light";
+}
+
+function applyTheme(theme: "light" | "dark" | null) {
+	if (theme) {
+		document.documentElement.dataset.theme = theme;
+	} else {
+		delete document.documentElement.dataset.theme;
+	}
+	themeToggle.textContent = getEffectiveTheme() === "dark" ? "☀️" : "🌙";
+}
+
+const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+applyTheme(savedTheme === "dark" || savedTheme === "light" ? savedTheme : null);
+
+themeToggle.addEventListener("click", () => {
+	const next = getEffectiveTheme() === "dark" ? "light" : "dark";
+	localStorage.setItem(THEME_STORAGE_KEY, next);
+	applyTheme(next);
+});
 
 const DEFAULT_TITLE = document.title;
 const NEW_MESSAGE_TITLE = `Nova mensagem · ${DEFAULT_TITLE}`;
