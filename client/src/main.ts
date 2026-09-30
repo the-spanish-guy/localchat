@@ -1,3 +1,4 @@
+import type { ChatMessage } from "shared";
 import { SocketEvents } from "shared";
 import { colorForUsername } from "./colorForUsername";
 import { isImageUrl } from "./isImageUrl";
@@ -23,11 +24,27 @@ const winkOverlay = document.querySelector<HTMLDivElement>("#wink-overlay")!;
 const winksBar = document.querySelector<HTMLDivElement>("#winks-bar")!;
 const themeToggle = document.querySelector<HTMLButtonElement>("#theme-toggle")!;
 
+const replyPreview = document.querySelector<HTMLDivElement>("#reply-preview")!;
+const replyPreviewAuthor =
+	document.querySelector<HTMLSpanElement>("#reply-preview-author")!;
+const replyPreviewText =
+	document.querySelector<HTMLSpanElement>("#reply-preview-text")!;
+const replyPreviewCancel =
+	document.querySelector<HTMLButtonElement>("#reply-preview-cancel")!;
+
 let currentUsername = "";
+let replyingTo: { id: string; username: string; text: string } | null = null;
 
 const THEME_STORAGE_KEY = "localchat:theme";
 
-const THEMES = ["light", "dark", "tokyo-night", "dracula", "nord", "catppuccin"] as const;
+const THEMES = [
+	"light",
+	"dark",
+	"tokyo-night",
+	"dracula",
+	"nord",
+	"catppuccin",
+] as const;
 type Theme = (typeof THEMES)[number];
 
 const THEME_ICONS: Record<Theme, string> = {
@@ -79,7 +96,7 @@ const BLINK_INTERVAL_MS = 2000;
 
 let blinkInterval: ReturnType<typeof setInterval> | undefined;
 
-const notificationSound = new Audio("/notificacao.mp3");
+const notificationSound = new Audio("/notificacao2.mp3");
 notificationSound.preload = "auto";
 notificationSound.load();
 
@@ -154,10 +171,38 @@ function scrollToBottom() {
 	messages.scrollTop = messages.scrollHeight;
 }
 
-function renderMessage(payload: { username: string; text: string }) {
+function scrollToMessage(id: string) {
+	const target = messages.querySelector<HTMLLIElement>(
+		`[data-message-id="${CSS.escape(id)}"]`,
+	);
+	if (!target) return;
+
+	target.scrollIntoView({ behavior: "smooth", block: "center" });
+	target.classList.remove("highlight");
+	void target.offsetWidth; // força reflow pra reiniciar a animação
+	target.classList.add("highlight");
+}
+
+function startReply(target: { id: string; username: string; text: string }) {
+	replyingTo = target;
+	replyPreviewAuthor.textContent = target.username;
+	replyPreviewText.textContent = target.text;
+	replyPreview.hidden = false;
+	input.focus();
+}
+
+function cancelReply() {
+	replyingTo = null;
+	replyPreview.hidden = true;
+}
+
+replyPreviewCancel.addEventListener("click", cancelReply);
+
+function renderMessage(payload: ChatMessage) {
 	const username = payload.username || "desconhecido";
 	const item = document.createElement("li");
 	item.className = "message";
+	item.dataset.messageId = payload.id;
 	if (username === currentUsername) {
 		item.classList.add("own");
 	}
@@ -166,6 +211,28 @@ function renderMessage(payload: { username: string; text: string }) {
 	author.className = "author";
 	author.textContent = username;
 	author.style.color = colorForUsername(username);
+
+	item.append(author);
+
+	if (payload.replyTo) {
+		const replyTo = payload.replyTo;
+		const quote = document.createElement("button");
+		quote.type = "button";
+		quote.className = "reply-quote";
+		quote.addEventListener("click", () => scrollToMessage(replyTo.id));
+
+		const quoteAuthor = document.createElement("span");
+		quoteAuthor.className = "reply-quote-author";
+		quoteAuthor.textContent = replyTo.username;
+		quoteAuthor.style.color = colorForUsername(replyTo.username);
+
+		const quoteText = document.createElement("span");
+		quoteText.className = "reply-quote-text";
+		quoteText.textContent = replyTo.text;
+
+		quote.append(quoteAuthor, quoteText);
+		item.appendChild(quote);
+	}
 
 	const text = document.createElement("span");
 	const imageUrls: string[] = [];
@@ -186,7 +253,17 @@ function renderMessage(payload: { username: string; text: string }) {
 		}
 	}
 
-	item.append(author, text);
+	item.append(text);
+
+	const replyBtn = document.createElement("button");
+	replyBtn.type = "button";
+	replyBtn.className = "reply-btn";
+	replyBtn.textContent = "↩";
+	replyBtn.setAttribute("aria-label", "Responder");
+	replyBtn.addEventListener("click", () =>
+		startReply({ id: payload.id, username, text: payload.text }),
+	);
+	item.appendChild(replyBtn);
 
 	for (const url of imageUrls) {
 		const link = document.createElement("a");
@@ -291,8 +368,12 @@ form.addEventListener("submit", (e) => {
 	e.preventDefault();
 	if (input.value) {
 		stopTyping();
-		socket.emit(SocketEvents.MessageSend, input.value);
+		socket.emit(SocketEvents.MessageSend, {
+			text: input.value,
+			replyToId: replyingTo?.id,
+		});
 		input.value = "";
+		cancelReply();
 	}
 });
 
@@ -344,7 +425,11 @@ socket.on(SocketEvents.MessageHistory, (history) => {
 		try {
 			renderMessage(payload);
 		} catch (err) {
-			console.error("[chat] falha ao renderizar mensagem do histórico:", err, payload);
+			console.error(
+				"[chat] falha ao renderizar mensagem do histórico:",
+				err,
+				payload,
+			);
 		}
 	}
 });

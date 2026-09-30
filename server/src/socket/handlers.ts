@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import type {
+	ChatMessage,
 	ClientToServerEvents,
+	ReplyPreview,
 	ServerToClientEvents,
 } from "shared";
 import { SocketEvents } from "shared";
@@ -72,21 +74,37 @@ export function registerSocketHandlers(
 			});
 		});
 
-		socket.on(SocketEvents.MessageSend, async (text: string) => {
+		socket.on(SocketEvents.MessageSend, async ({ text, replyToId }) => {
 			const username = socket.data.username;
 
+			let replyTo: ReplyPreview | undefined;
+			if (replyToId) {
+				const history = await getMessageHistory();
+				const original = history.find((message) => message.id === replyToId);
+				if (original) {
+					replyTo = {
+						id: original.id,
+						username: original.username,
+						text: original.text,
+					};
+				}
+			}
+
+			const message: ChatMessage = {
+				createdAt: Date.now(),
+				id: randomUUID(),
+				text,
+				username,
+				replyTo,
+			};
+
 			try {
-				await saveMessage({
-					createdAt: Date.now(),
-					id: randomUUID(),
-					text,
-					username,
-				});
+				await saveMessage(message);
 			} catch (err) {
 				console.error("[redis] falha ao salvar mensagem:", err);
 			}
 
-			io.emit(SocketEvents.MessageNew, { username, text });
+			io.emit(SocketEvents.MessageNew, message);
 		});
 
 		socket.on("disconnect", () => {

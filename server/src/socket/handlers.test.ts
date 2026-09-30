@@ -97,9 +97,42 @@ describe("socket handlers", () => {
 			a,
 			"message:new",
 		);
-		a.emit("message:send", "oi");
+		a.emit("message:send", { text: "oi" });
 
-		expect(await messagePromise).toEqual({ username: "Carla", text: "oi" });
+		expect(await messagePromise).toMatchObject({ username: "Carla", text: "oi" });
+	});
+
+	it("inclui replyTo em message:new quando message:send referencia um id existente", async () => {
+		const a = connect();
+		await waitFor(a, "connect");
+		a.emit("user:join", "Julia");
+		await waitFor(a, "user:joined");
+
+		const originalPromise = waitFor<{ id: string }>(a, "message:new");
+		a.emit("message:send", { text: "mensagem original" });
+		const original = await originalPromise;
+
+		const { getMessageHistory } = await import("../services/redisClient");
+		vi.mocked(getMessageHistory).mockResolvedValueOnce([
+			{
+				id: original.id,
+				username: "Julia",
+				text: "mensagem original",
+				createdAt: Date.now(),
+			},
+		]);
+
+		const replyPromise = waitFor<{ replyTo?: { id: string; username: string; text: string } }>(
+			a,
+			"message:new",
+		);
+		a.emit("message:send", { text: "respondendo", replyToId: original.id });
+
+		expect((await replyPromise).replyTo).toEqual({
+			id: original.id,
+			username: "Julia",
+			text: "mensagem original",
+		});
 	});
 
 	it("nudge chega só pro alvo, não pra quem manda", async () => {
