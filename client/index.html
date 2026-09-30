@@ -46,6 +46,14 @@
           <button type="button" class="wink-btn" data-emoji="😜">😜</button>
         </div>
 
+        <div id="reply-preview" hidden>
+          <div id="reply-preview-content">
+            <span id="reply-preview-author"></span>
+            <span id="reply-preview-text"></span>
+          </div>
+          <button type="button" id="reply-preview-cancel" aria-label="Cancelar resposta">✕</button>
+        </div>
+
         <form id="form">
           <input id="input" autocomplete="off" placeholder="Digite uma mensagem" />
           <button type="submit">Enviar</button>

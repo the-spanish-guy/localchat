@@ -8,6 +8,7 @@
   --primary: #2563eb;
   --primary-text: #ffffff;
   --bubble-other: rgba(255, 255, 255, 0.65);
+  --bubble-own-overlay: rgba(0, 0, 0, 0.18);
   --system: #8a8d91;
   --online: #22c55e;
   --glass-bg: rgba(255, 255, 255, 0.55);
@@ -27,6 +28,7 @@
     --primary: #4f8cff;
     --primary-text: #ffffff;
     --bubble-other: rgba(44, 47, 54, 0.55);
+    --bubble-own-overlay: rgba(0, 0, 0, 0.18);
     --system: #9aa0a6;
     --online: #34d399;
     --glass-bg: rgba(24, 26, 30, 0.6);
@@ -47,6 +49,7 @@
   --primary: #4f8cff;
   --primary-text: #ffffff;
   --bubble-other: rgba(44, 47, 54, 0.55);
+  --bubble-own-overlay: rgba(0, 0, 0, 0.18);
   --system: #9aa0a6;
   --online: #34d399;
   --glass-bg: rgba(24, 26, 30, 0.6);
@@ -70,6 +73,7 @@
   --primary: #7aa2f7;
   --primary-text: #16161e;
   --bubble-other: rgba(41, 46, 66, 0.55);
+  --bubble-own-overlay: rgba(255, 255, 255, 0.35);
   --system: #565f89;
   --online: #9ece6a;
   --glass-bg: rgba(26, 27, 38, 0.6);
@@ -89,6 +93,7 @@
   --primary: #bd93f9;
   --primary-text: #282a36;
   --bubble-other: rgba(68, 71, 90, 0.55);
+  --bubble-own-overlay: rgba(255, 255, 255, 0.35);
   --system: #6272a4;
   --online: #50fa7b;
   --glass-bg: rgba(40, 42, 54, 0.6);
@@ -108,6 +113,7 @@
   --primary: #88c0d0;
   --primary-text: #2e3440;
   --bubble-other: rgba(59, 66, 82, 0.55);
+  --bubble-own-overlay: rgba(255, 255, 255, 0.35);
   --system: #81a1c1;
   --online: #a3be8c;
   --glass-bg: rgba(46, 52, 64, 0.6);
@@ -127,6 +133,7 @@
   --primary: #cba6f7;
   --primary-text: #1e1e2e;
   --bubble-other: rgba(49, 50, 68, 0.55);
+  --bubble-own-overlay: rgba(255, 255, 255, 0.35);
   --system: #a6adc8;
   --online: #a6e3a1;
   --glass-bg: rgba(30, 30, 46, 0.6);
@@ -446,6 +453,7 @@ body::before {
 }
 
 #messages li.message .reply-quote {
+  appearance: none;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -453,17 +461,29 @@ body::before {
   width: 100%;
   margin-bottom: 0.3rem;
   padding: 0.3rem 0.5rem;
+  border: none;
   border-left: 3px solid var(--primary);
   border-radius: 4px;
   background: rgba(127, 127, 127, 0.12);
+  color: inherit;
+  font: inherit;
   font-size: 0.8rem;
   text-align: left;
-  font-family: inherit;
   cursor: pointer;
+}
+
+#messages li.message.own .reply-quote {
+  border-left-color: rgba(127, 127, 127, 0.5);
+  background: var(--bubble-own-overlay);
 }
 
 #messages li.message .reply-quote-author {
   font-weight: 600;
+}
+
+#messages li.message.own .reply-quote-author {
+  color: inherit;
+  opacity: 0.8;
 }
 
 #messages li.message .reply-quote-text {

@@ -203,7 +203,8 @@ function renderMessage(payload: ChatMessage) {
 	const item = document.createElement("li");
 	item.className = "message";
 	item.dataset.messageId = payload.id;
-	if (username === currentUsername) {
+	const isOwn = username === currentUsername;
+	if (isOwn) {
 		item.classList.add("own");
 	}
 
@@ -224,7 +225,9 @@ function renderMessage(payload: ChatMessage) {
 		const quoteAuthor = document.createElement("span");
 		quoteAuthor.className = "reply-quote-author";
 		quoteAuthor.textContent = replyTo.username;
-		quoteAuthor.style.color = colorForUsername(replyTo.username);
+		if (!isOwn) {
+			quoteAuthor.style.color = colorForUsername(replyTo.username);
+		}
 
 		const quoteText = document.createElement("span");
 		quoteText.className = "reply-quote-text";
