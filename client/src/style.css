@@ -143,6 +143,86 @@
   --blob-3: #89dceb;
 }
 
+:root[data-theme="abyss-void"] {
+  color-scheme: dark;
+  --bg: #080b10;
+  --surface: #111620;
+  --border: #253042;
+  --text: #e2eaf5;
+  --text-muted: #7a90aa;
+  --primary: #ff6b2b;
+  --primary-text: #080b10;
+  --bubble-other: rgba(28, 35, 51, 0.55);
+  --bubble-own-overlay: rgba(255, 255, 255, 0.35);
+  --system: #7a90aa;
+  --online: #3ddc97;
+  --glass-bg: rgba(8, 11, 16, 0.6);
+  --glass-border: rgba(255, 107, 43, 0.18);
+  --blob-1: #ff6b2b;
+  --blob-2: #c792ea;
+  --blob-3: #79d4f1;
+}
+
+:root[data-theme="abyss-dusk"] {
+  color-scheme: dark;
+  --bg: #0c1220;
+  --surface: #121a2e;
+  --border: #243248;
+  --text: #d2dcee;
+  --text-muted: #6e8498;
+  --primary: #e05a20;
+  --primary-text: #0c1220;
+  --bubble-other: rgba(30, 44, 70, 0.55);
+  --bubble-own-overlay: rgba(255, 255, 255, 0.35);
+  --system: #6e8498;
+  --online: #30c080;
+  --glass-bg: rgba(12, 18, 32, 0.6);
+  --glass-border: rgba(224, 90, 32, 0.18);
+  --blob-1: #e05a20;
+  --blob-2: #b080d8;
+  --blob-3: #68c0e0;
+}
+
+:root[data-theme="abyss-dawn"] {
+  color-scheme: light;
+  --bg: #f4f6fb;
+  --surface: #e8eef8;
+  --border: #b6c2d8;
+  --text: #1a2440;
+  --text-muted: #445c7c;
+  --primary: #c84000;
+  --primary-text: #ffffff;
+  --bubble-other: rgba(255, 255, 255, 0.65);
+  --bubble-own-overlay: rgba(0, 0, 0, 0.18);
+  --system: #445c7c;
+  --online: #0c7850;
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --blob-1: #e6a98c;
+  --blob-2: #b49ed4;
+  --blob-3: #95c4cf;
+}
+
+:root[data-theme="abyss-ember"] {
+  color-scheme: dark;
+  --bg: #100a04;
+  --surface: #1a1008;
+  --border: #3a280e;
+  --text: #f0e0c8;
+  --text-muted: #a08060;
+  --primary: #ff8c00;
+  --primary-text: #100a04;
+  --bubble-other: rgba(44, 30, 12, 0.55);
+  --bubble-own-overlay: rgba(255, 255, 255, 0.35);
+  --system: #a08060;
+  --online: #60c070;
+  --glass-bg: rgba(16, 10, 4, 0.6);
+  --glass-border: rgba(255, 140, 0, 0.18);
+  --blob-1: #ff8c00;
+  --blob-2: #c090e0;
+  --blob-3: #78c8b0;
+}
+
 * {
   box-sizing: border-box;
 }

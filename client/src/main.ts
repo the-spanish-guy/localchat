@@ -44,6 +44,10 @@ const THEMES = [
 	"dracula",
 	"nord",
 	"catppuccin",
+	"abyss-void",
+	"abyss-dusk",
+	"abyss-dawn",
+	"abyss-ember",
 ] as const;
 type Theme = (typeof THEMES)[number];
 
@@ -54,6 +58,10 @@ const THEME_ICONS: Record<Theme, string> = {
 	dracula: "❄️",
 	nord: "☕",
 	catppuccin: "☀️",
+	"abyss-void": "🕳️",
+	"abyss-dusk": "🌌",
+	"abyss-dawn": "🌅",
+	"abyss-ember": "🔥",
 };
 
 function isTheme(value: string | undefined): value is Theme {
