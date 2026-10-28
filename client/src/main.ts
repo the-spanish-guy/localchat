@@ -1,8 +1,6 @@
 import type { ChatMessage } from "shared";
-import { SocketEvents } from "shared";
-import { colorForUsername } from "./colorForUsername";
+import { SocketEvents, colorForUsername, linkify, typingIndicatorText } from "shared";
 import { isImageUrl } from "./isImageUrl";
-import { linkify } from "./linkify";
 import { socket } from "./socket";
 
 const joinScreen = document.querySelector<HTMLDivElement>("#join-screen")!;
@@ -335,22 +333,16 @@ function renderSystemMessage(text: string) {
 }
 
 function renderTypingIndicator() {
-	const names = Array.from(typingUsers);
+	const text = typingIndicatorText(Array.from(typingUsers));
 
-	if (names.length === 0) {
+	if (text === null) {
 		typingIndicator.hidden = true;
 		typingIndicator.textContent = "";
 		return;
 	}
 
 	typingIndicator.hidden = false;
-	if (names.length === 1) {
-		typingIndicator.textContent = `${names[0]} está digitando...`;
-	} else if (names.length === 2) {
-		typingIndicator.textContent = `${names[0]} e ${names[1]} estão digitando...`;
-	} else {
-		typingIndicator.textContent = "Várias pessoas estão digitando...";
-	}
+	typingIndicator.textContent = text;
 }
 
 function stopTyping() {

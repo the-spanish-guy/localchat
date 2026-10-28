@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { colorForUsername } from "./colorForUsername";
+import { colorForUsername, colorForUsernameHex } from "./colorForUsername";
 
 describe("colorForUsername", () => {
 	it("retorna a mesma cor pro mesmo username sempre", () => {
@@ -26,5 +26,21 @@ describe("colorForUsername", () => {
 
 	it("funciona com username vazio sem lançar erro", () => {
 		expect(() => colorForUsername("")).not.toThrow();
+	});
+});
+
+describe("colorForUsernameHex", () => {
+	it("retorna a mesma cor pro mesmo username sempre", () => {
+		expect(colorForUsernameHex("Pancha")).toBe(colorForUsernameHex("Pancha"));
+	});
+
+	it("retorna o mesmo matiz que colorForUsername, só que em hex", () => {
+		expect(colorForUsernameHex("Carla")).toMatch(/^#[0-9a-f]{6}$/);
+	});
+
+	it("usernames diferentes dão cores diferentes", () => {
+		expect(colorForUsernameHex("Pancha")).not.toBe(
+			colorForUsernameHex("Bruno"),
+		);
 	});
 });
