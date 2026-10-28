@@ -8,11 +8,13 @@ import { SocketEvents, typingIndicatorText } from "shared";
 import { MessageBubble } from "./MessageBubble";
 import { Sidebar } from "./Sidebar";
 import { readConfig, saveUsername } from "./config";
-import { socket } from "./socket";
+import { SERVER_URL, socket } from "./socket";
 
 type TimelineEntry =
 	| { kind: "message"; message: ChatMessage }
 	| { kind: "system"; id: string; text: string };
+
+type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
 const TYPING_TIMEOUT_MS = 2000;
 // altura aproximada de uma bolha (autor + texto + 2 bordas); heurística pra
@@ -36,6 +38,10 @@ export function App() {
 	const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 	const [typingUsers, setTypingUsers] = useState<string[]>([]);
 	const [rows, setRows] = useState(() => getRows(stdout));
+	const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(
+		socket.connected ? "connected" : "connecting",
+	);
+	const [connectError, setConnectError] = useState<string | null>(null);
 
 	const isTypingRef = useRef(false);
 	const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
@@ -106,6 +112,20 @@ export function App() {
 			}
 		}
 
+		function onConnect() {
+			setConnectionStatus("connected");
+			setConnectError(null);
+		}
+
+		function onDisconnect() {
+			setConnectionStatus("disconnected");
+		}
+
+		function onConnectError(err: Error) {
+			setConnectionStatus("disconnected");
+			setConnectError(err.message);
+		}
+
 		socket.on(SocketEvents.UserJoined, onUserJoined);
 		socket.on(SocketEvents.UserLeft, onUserLeft);
 		socket.on(SocketEvents.UserTyping, onUserTyping);
@@ -113,6 +133,9 @@ export function App() {
 		socket.on(SocketEvents.MessageHistory, onMessageHistory);
 		socket.on(SocketEvents.OnlineUsers, onOnlineUsers);
 		socket.io.on("reconnect", onReconnect);
+		socket.on("connect", onConnect);
+		socket.on("disconnect", onDisconnect);
+		socket.on("connect_error", onConnectError);
 
 		return () => {
 			socket.off(SocketEvents.UserJoined, onUserJoined);
@@ -122,6 +145,9 @@ export function App() {
 			socket.off(SocketEvents.MessageHistory, onMessageHistory);
 			socket.off(SocketEvents.OnlineUsers, onOnlineUsers);
 			socket.io.off("reconnect", onReconnect);
+			socket.off("connect", onConnect);
+			socket.off("disconnect", onDisconnect);
+			socket.off("connect_error", onConnectError);
 		};
 	}, []);
 
@@ -159,11 +185,21 @@ export function App() {
 		setMessageInput("");
 	}
 
+	const connectionLine =
+		connectionStatus === "connected" ? null : (
+			<Text color={connectionStatus === "connecting" ? "yellow" : "red"}>
+				{connectionStatus === "connecting"
+					? `⏳ conectando em ${SERVER_URL}...`
+					: `✖ sem conexão com ${SERVER_URL}${connectError ? ` (${connectError})` : ""} — confira LOCALCHAT_SERVER_URL`}
+			</Text>
+		);
+
 	if (screen === "join") {
 		return (
 			<Box flexDirection="column" borderStyle="round" paddingX={2} paddingY={1}>
 				<Text bold>LocalChat</Text>
 				<Text dimColor>Sem cadastro — só um nome pra entrar.</Text>
+				{connectionLine && <Box marginTop={1}>{connectionLine}</Box>}
 				<Box marginTop={1}>
 					<Text>Seu nome: </Text>
 					<TextInput
@@ -182,6 +218,7 @@ export function App() {
 
 	return (
 		<Box flexDirection="column">
+			{connectionLine && <Box paddingX={1}>{connectionLine}</Box>}
 			<Box>
 				<Sidebar onlineUsers={onlineUsers} />
 				<Box flexDirection="column" flexGrow={1} paddingX={1}>
