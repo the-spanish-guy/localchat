@@ -108,6 +108,31 @@ const notificationSound = new Audio("/notificacao2.mp3");
 notificationSound.preload = "auto";
 notificationSound.load();
 
+/**
+ * navegadores só deixam tocar áudio com som depois de algum gesto do
+ * usuário na página (clique, tecla etc) — com o login automático
+ * (username salvo), a página carrega sem nenhum clique, então a
+ * notificação sonora fica bloqueada silenciosamente até a pessoa
+ * interagir com a aba pela primeira vez. Isso "destrava" o som de
+ * propósito, tocando e pausando na hora, assim que a primeira
+ * interação acontecer.
+ */
+function unlockNotificationSound() {
+	notificationSound
+		.play()
+		.then(() => {
+			notificationSound.pause();
+			notificationSound.currentTime = 0;
+			document.removeEventListener("pointerdown", unlockNotificationSound);
+			document.removeEventListener("keydown", unlockNotificationSound);
+		})
+		.catch(() => {
+			// ainda bloqueado, tenta de novo na próxima interação
+		});
+}
+document.addEventListener("pointerdown", unlockNotificationSound);
+document.addEventListener("keydown", unlockNotificationSound);
+
 function startBlinkingTitle() {
 	if (blinkInterval) return;
 
